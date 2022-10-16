@@ -3,7 +3,7 @@ DL_CNM_23
 
 Сопоставление названий компаний
 
-Project Organization
+Структура проекта
 ------------
 
     ├── LICENSE
@@ -55,3 +55,31 @@ Project Organization
 --------
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+
+---
+
+## Метрики
+
+В качестве основных метрик качества классификации были выбраны [recision и recall](https://en.wikipedia.org/wiki/Precision_and_recall), а также [F1-score](https://en.wikipedia.org/wiki/F-score) в macro интерпретации (т.е. как среднее арифметическое по данным метрикам для каждого из классов). 
+
+Precision можно интерпретировать как долю объектов, названных классификатором положительными и при этом действительно являющимися положительными, а recall показывает, какую долю объектов положительного класса из всех объектов положительного класса нашел алгоритм. Recall демонстрирует способность алгоритма обнаруживать данный класс вообще, а precision — способность отличать этот класс от других классов. 
+
+![Precision](https://habrastorage.org/getpro/habr/post_images/164/93b/c89/16493bc899f7275f3b5ff8d45a3ed2e2.svg)
+
+![Recall](https://habrastorage.org/getpro/habr/post_images/258/4e7/8f3/2584e78f32225eade5cb8b1b4a665193.svg)
+
+
+F1-score - это метрика, объединяющая в себе информацию о точности (precision) и полноте (recall) модели.
+
+![F1](https://miro.medium.com/max/1400/1*9uo7HN1pdMlMwTbNSdyO3A.png)
+
+
+
+## Сравнение моделей
+
+| Model | Recall (macro) | Precision (macro) | F1 (macro) |
+| --- | --- | --- | --- |
+| Random Forest | 0.70 | 0.95 | 0.78 |
+| CatBoost | 0.77 | 0.90 | 0.83 |
+| LightGBM | 0.78 | 0.89 | 0.82 |
+| MLP | 0.52 | 0.87 | 0.54 |

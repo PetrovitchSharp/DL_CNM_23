@@ -37,6 +37,22 @@ class BasicModel(ABC):
         '''
         pass
 
+    @abstractmethod
+    def predict_proba(self, company_name_1: str, company_name_2: str) -> bool:
+        '''
+        Predict the probability that the input 
+        company names are the name of a single company
+
+        Args:
+            company_name_1: First company name
+            company_name_2: Second company name
+
+        Returns:
+            Probability that the input 
+            company names are the name of a single company
+        '''
+        pass
+
 
 class CatboostModel(BasicModel):
     def __init__(self, model: CatBoostClassifier) -> None:
@@ -150,3 +166,8 @@ class CatboostModel(BasicModel):
         input_data = self.preprocess_input(company_name_1, company_name_2)
 
         return self.model.predict(input_data) == 1
+
+    def predict_proba(self, company_name_1: str, company_name_2: str) -> bool:
+        input_data = self.preprocess_input(company_name_1, company_name_2)
+
+        return self.model.predict_proba(input_data)

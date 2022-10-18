@@ -17,12 +17,12 @@ def make_parser() -> argparse.ArgumentParser:
         CLI args parser
     '''
     parser = argparse.ArgumentParser(
-        description='Train carplate model'
+        description='Train catboost model'
     )
 
     parser.add_argument('-data', type=str,
-                        default='processed/train.csv',
-                        help='dataset path')
+                        default='train.csv',
+                        help='preprocessed dataset filename')
 
     parser.add_argument('-version', type=int,
                         default=0,
@@ -76,9 +76,9 @@ def main() -> None:
     test_size = args.test_size
     refit = args.refit
 
-    # Load data
+    # Load preprocessed data
     data = pd.read_csv(
-        f'../../data/{data_path}',
+        f'../../data/processed/{data_path}',
         index_col='pair_id'
     )
 

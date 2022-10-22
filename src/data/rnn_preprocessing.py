@@ -9,7 +9,7 @@ DROP_SYMBOLS = ['#', '%', '&', '*', '+', ',', '.', '/', ';', '<', '>', '?',
                 '司', '团', '式', '彤', '技', '料', '新', '方', '日', '有', '术',
                 '材', '株', '水', '海', '社', '程', '股', '虹', '防', '限', '集',
                 '雨', '﹠', '＆', '（', '）', '，',  '̇']
-REPLACE_WITH_SPACE = ['-', ':', '"', '(', ')', "'"]
+REPLACE_WITH_SPACE = ['-', ':', '"', '(', ')', "'", "'"]
 STOP_WORDS = ['ооо', 'оао', 'зао', 'лимитед', 'раша', 'групп',
               'llc', 'gmbh', 'inc', 'co', 'ltd', 'sa', 'slr',
               'limited', 'llp', 'ltda', 'asia', 'europe']
@@ -65,5 +65,5 @@ def clean_company_name_string(name: str,
             need_ru_transliteration = True
             break
     if need_ru_transliteration:
-        assembled_name = translit(assembled_name, 'ru', reversed=True)
-    return cleaned_name
+        return translit(assembled_name, 'ru', reversed=True)
+    return assembled_name

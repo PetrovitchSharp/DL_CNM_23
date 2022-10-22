@@ -92,3 +92,6 @@ data/external/*.csv
 .mypy_cache/
 .python-version
 
+src/data/rnn_preprocessing.py
+notebooks/wandb
+models/*.pth

@@ -10,14 +10,30 @@ DROP_SYMBOLS = ['#', '%', '&', '*', '+', ',', '.', '/', ';', '<', '>', '?',
                 '材', '株', '水', '海', '社', '程', '股', '虹', '防', '限', '集',
                 '雨', '﹠', '＆', '（', '）', '，',  '̇']
 REPLACE_WITH_SPACE = ['-', ':', '"', '(', ')', "'", "'"]
-STOP_WORDS = ['ооо', 'оао', 'зао', 'лимитед', 'раша', 'групп',
-              'llc', 'gmbh', 'inc', 'co', 'ltd', 'sa', 'slr',
-              'limited', 'llp', 'ltda', 'asia', 'europe']
+LEGAL_WORDS = ['ооо', 'оао', 'зао', 'лимитед',
+               'llc', 'gmbh', 'inc', 'co', 'ltd', 'sa', 'slr',
+               'limited', 'llp', 'ltda', 'corp', 'pty']
+STOP_WORDS = ['раша', 'групп', 'asia', 'europe', 'de', 'cv', 'international',
+              'pvt', 'trading', 'rubber', 'india', 'private', 'logistics',
+              'industries', 's', 'shanghai', 'products', 'mexico', 'shenzhen',
+              'imp', 'and', 'usa', 'exp', 'dongguan', 'a', 'plastic', 'group',
+              'trade', 'industrial', 'corporation', 'rl', 'sports', 'global',
+              'of', 'chemical', 'qingdao', 'technology', 'e', 'services',
+              'the', 'mfg', 'y', 'america', 'pt', 'bank', 'textile',
+              'chemicals', 'sas', 'enterprises', 'plastics', 'al', 'h', 'srl',
+              'polymers', 'brasil', 'materials', 'industry', 'guangzhou',
+              'comercio', 'mills', 'p', 'general', 'industria', 'tire',
+              'shoes', 'gmb', 'solutions', 'c', 'china', 'systems', 'spinning',
+              'auto', 'sp', 'freight', 'city', 'canada', 'l', 'engineering',
+              'automotive', 'technologies', 'supply', 'new', 'do', 'sac',
+              'service', 'equipment', 'parts', 'sociedad', 'to', 'cargo',
+              'shipping', 'express', 'electronics', 'as', 'sdn']
 
 
 def clean_company_name_string(name: str,
                               drop_symbols: List[str] = DROP_SYMBOLS,
                               space_symbols: List[str] = REPLACE_WITH_SPACE,
+                              legal_words: List[str] = LEGAL_WORDS,
                               stop_words: List[str] = STOP_WORDS) -> str:
     ''' Preprocess strings with following steps:
     1. Remove symbols from drop_symbols list
@@ -56,7 +72,12 @@ def clean_company_name_string(name: str,
     cleaned_name = cleaned_name.strip()
     # remove stop words
     words = cleaned_name.split()
-    cleaned_words = [w for w in words if w not in stop_words]
+    cleaned_words_legal = [w for w in words if w not in legal_words]
+    if cleaned_words_legal == []:
+        cleaned_words_legal = words
+    cleaned_words = [w for w in cleaned_words_legal if w not in stop_words]
+    if cleaned_words == []:
+        cleaned_words = cleaned_words_legal
     assembled_name = ' '.join(cleaned_words)
     # transliterate from russian language
     need_ru_transliteration = False

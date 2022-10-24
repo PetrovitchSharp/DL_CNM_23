@@ -75,7 +75,13 @@ F1-score - это метрика, объединяющая в себе инфо�
 
 
 
-## Сравнение моделей
+## Использование классического ML
+
+Нами было решено опробовать для решения задачи классификации названий компаний такие модели, как [random forest](https://github.com/PetrovitchSharp/DL_CNM_23/blob/develop/notebooks/random_forest.ipynb), [CatBoost, LightGBM](https://github.com/PetrovitchSharp/DL_CNM_23/blob/develop/notebooks/boosting_models.ipynb), а также сравнить их с простейшим [многослойным персептроном](https://github.com/PetrovitchSharp/DL_CNM_23/blob/develop/notebooks/neural_network.ipynb).
+
+Для обучения моделей был произведен препроцессинг ([ноутбук раз](https://github.com/PetrovitchSharp/DL_CNM_23/blob/develop/notebooks/text_unification.ipynb) и [ноутбук два](https://github.com/PetrovitchSharp/DL_CNM_23/blob/develop/notebooks/feature_extraction.ipynb)) с целью вычленить числовые фичи из названий.
+
+В результате удалось метрик, представленных в таблице ниже.
 
 | Model | Recall (macro) | Precision (macro) | F1 (macro) |
 | --- | --- | --- | --- |
@@ -83,6 +89,8 @@ F1-score - это метрика, объединяющая в себе инфо�
 | CatBoost | 0.77 | 0.90 | 0.83 |
 | LightGBM | 0.78 | 0.89 | 0.82 |
 | MLP | 0.52 | 0.87 | 0.54 |
+
+В результате в качестве опорной модели из класса "классических" был выбран CatBoost.
 
 ## Использование нейронных сетей (LSTM)
 
@@ -100,7 +108,7 @@ F1-score - это метрика, объединяющая в себе инфо�
 
 ### Результат
 
-<p>На данный момент я попробовал обучать сеть на основе LSTM (данные подаются посимвольно), было проведено достаточно много экспериментов с различными гиперпараметрами (embedding_size, hidden_size, количество слоев LSTM, различные значения dropout.</p><br>
+<p>На данный момент мы попробовали обучать сеть на основе LSTM (данные подаются посимвольно), было проведено достаточно много экспериментов с различными гиперпараметрами (embedding_size, hidden_size, количество слоев LSTM, различные значения dropout.</p><br>
 
 ![Wandb](https://raw.githubusercontent.com/PetrovitchSharp/DL_CNM_23/feature/lstm_model/img/wandb_lstm.png)
 
@@ -111,3 +119,37 @@ F1-score - это метрика, объединяющая в себе инфо�
 | Model | Precision (clusters) |
 | --- | --- |
 | LSTM (emb_size 80, hidden_size 80, layers 3) character level | 0.60 |
+
+## Запуск пайплайна
+
+### CatBoost
+
+1. Скачайте [исходный датасет](https://drive.google.com/file/d/1e9bdr7wcQX_YBudQcsKj-sMoIGxQOlK4/view?usp=sharing) и распакуйте его в папку data/raw
+
+2. Выполните предобработку данных - src/features/build_catboost_features.py
+
+    Параметры для использования скрипта:
+
+        -h, --help            show this help message and exit
+        -data DATA            raw dataset filename
+        -output OUTPUT        prepared dataset filename
+
+3. Обучите модель CatBoost - scr/models/train_catboost.py 
+
+    Параметры для использования скрипта:
+
+        -h, --help            show this help message and exit
+        -data DATA            preprocessed dataset filename
+        -version VERSION      model version
+        -lr LR                learning rate
+        -iters ITERS          number of iterations
+        -test_size TEST_SIZE  ratio of test part
+        -refit REFIT          refit model on full dataset
+
+4. Запустите инференс модели - scr/models/catboost_inference.py 
+
+    Параметры для использования скрипта:
+
+        -h, --help    show this help message and exit
+        -input INPUT  json file with company names
+        -model MODEL  model filename

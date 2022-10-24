@@ -95,3 +95,6 @@ data/external/*.csv
 src/data/rnn_preprocessing.py
 notebooks/wandb
 models/*.pth
+models/*.joblib
+
+

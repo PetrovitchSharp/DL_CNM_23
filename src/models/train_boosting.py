@@ -1,12 +1,12 @@
 import argparse
 
-from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import sklearn.metrics as metrics
 from joblib import dump
 
-from model_classes import CatboostModel
+from model_classes import LGBMModel
 
 
 def make_parser() -> argparse.ArgumentParser:
@@ -29,11 +29,11 @@ def make_parser() -> argparse.ArgumentParser:
                         help='model version')
 
     parser.add_argument('-lr', type=float,
-                        default=0.2,
+                        default=0.1,
                         help='learning rate')
 
     parser.add_argument('-iters', type=int,
-                        default=2000,
+                        default=500,
                         help='number of iterations')
 
     parser.add_argument('-test_size', type=float,
@@ -82,8 +82,12 @@ def main() -> None:
         index_col='pair_id'
     )
 
-    X = data.drop(['is_duplicate'], axis=1)
-    y = data.is_duplicate
+    # Undersampling
+    matched_count = data.is_duplicate.value_counts()[1]
+    equal_df = pd.concat([data[data.is_duplicate == 1],data[data.is_duplicate == 0].sample(matched_count)])
+
+    X = equal_df.drop(['is_duplicate'], axis=1)
+    y = equal_df.is_duplicate
 
     # Split data into train and test
     X_train, X_test, y_train, y_test = train_test_split(
@@ -94,11 +98,11 @@ def main() -> None:
     )
 
     # Model training on train dataset
-    model = CatBoostClassifier(
-        thread_count=-1,
+    model = LGBMClassifier(
+        num_threads=-1,
+        boosting='gbdt',
         eta=learning_rate,
-        iterations=iterations,
-        silent=True
+        n_iter=iterations
     )
 
     print('Fitting model on train dataset...')
@@ -125,11 +129,11 @@ def main() -> None:
 
     # If refit is True we train model on full dataset and evaluate it
     if refit:
-        model = CatBoostClassifier(
-            thread_count=-1,
+        model = LGBMClassifier(
+            num_threads=-1,
+            boosting='gbdt',
             eta=learning_rate,
-            iterations=iterations,
-            silent=True
+            n_iter=iterations
         )
 
         print('Refitting model on full dataset...')
@@ -148,11 +152,11 @@ def main() -> None:
 
     print_metrics(metrics_dict)
 
-    unificated_model = CatboostModel(model)
+    unificated_model = LGBMModel(model)
 
     # Save models
-    dump(unificated_model, f'../../models/uni_catboost_v{version}.joblib')
-    dump(model, f'../../models/raw_catboost_v{version}.joblib')
+    dump(unificated_model, f'../../models/uni_lgbm_v{version}.joblib')
+    dump(model, f'../../models/raw_lgbm_v{version}.joblib')
 
 
 if __name__ == '__main__':

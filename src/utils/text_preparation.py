@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def clean_and_concat(dirty_string: str) -> str:
     '''
     Clearing a string of characters

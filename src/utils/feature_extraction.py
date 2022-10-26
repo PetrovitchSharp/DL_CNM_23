@@ -2,6 +2,7 @@ from collections import Counter
 import math
 import re
 
+
 def text_to_vector(text: str) -> Counter:
     '''
     Transform text to vector

@@ -24,6 +24,7 @@ def make_parser() -> argparse.ArgumentParser:
 
     return parser
 
+
 def main() -> None:
     '''
     Main function responsible for model inference
@@ -38,7 +39,6 @@ def main() -> None:
 
     # Model loading
     model = joblib.load(f'../../models/{model_file}')
-
 
     with open(input_file) as input:
         comp_names = json.load(input)
@@ -59,7 +59,10 @@ def main() -> None:
     # We choose probability of predicted class
     prob = probabilities_array[1] if prediction else probabilities_array[0]
 
-    print(f'Company names are matched: {prediction} with probability: {prob*100}%')
+    print(
+        f'Names are matched: {prediction} with probability: {prob*100}%'
+    )
+
 
 if __name__ == '__main__':
     main()

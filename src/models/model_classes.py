@@ -2,15 +2,17 @@ from typing import Any
 from abc import ABC, abstractmethod
 import sys
 
-sys.path.append('../')
+# Yes, we don't have to do that...
+sys.path.append('../') 
+# ...but sometimes we have to
 
-import pandas as pd
-import Levenshtein
-from catboost import CatBoostClassifier
 from fuzzywuzzy import fuzz
+from catboost import CatBoostClassifier
+import Levenshtein
+import pandas as pd
 
-from utils.text_preparation import transliterate, clean_and_concat
 from utils.feature_extraction import cos_distance, jaccard_similarity
+from utils.text_preparation import transliterate, clean_and_concat
 
 
 class BasicModel(ABC):
@@ -40,7 +42,7 @@ class BasicModel(ABC):
     @abstractmethod
     def predict_proba(self, company_name_1: str, company_name_2: str) -> bool:
         '''
-        Predict the probability that the input 
+        Predict the probability that the input
         company names are the name of a single company
 
         Args:
@@ -48,7 +50,7 @@ class BasicModel(ABC):
             company_name_2: Second company name
 
         Returns:
-            Probability that the input 
+            Probability that the input
             company names are the name of a single company
         '''
         pass

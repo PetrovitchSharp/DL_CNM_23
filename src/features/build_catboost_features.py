@@ -1,15 +1,17 @@
 import argparse
 import sys
 
-sys.path.append('../')
+# Yes, we don't have to do that...
+sys.path.append('../') 
+# ...but sometimes we have to
 
-import pandas as pd
-from fuzzywuzzy import fuzz
-import Levenshtein
 from tqdm import tqdm
+import Levenshtein
+from fuzzywuzzy import fuzz
+import pandas as pd
 
-from utils.text_preparation import clean_and_concat, transliterate
 from utils.feature_extraction import cos_distance, jaccard_similarity
+from utils.text_preparation import clean_and_concat, transliterate
 
 
 def make_parser() -> argparse.ArgumentParser:
@@ -33,6 +35,7 @@ def make_parser() -> argparse.ArgumentParser:
 
     return parser
 
+
 def main() -> None:
     '''
     Main function responsible for catboost dataset preparation
@@ -46,7 +49,7 @@ def main() -> None:
 
     print('Preparing dataset...')
 
-    pbar = tqdm(total = 22)
+    pbar = tqdm(total=22)
 
     # Load raw dataset
     data = pd.read_csv(
@@ -85,16 +88,16 @@ def main() -> None:
         lambda row: fuzz.WRatio(
             row.transliterated_name_1,
             row.transliterated_name_2
-        ) / 100, 
-        axis = 1
+        ) / 100,
+        axis=1
     )
 
     data['conc_wratio'] = data.apply(
         lambda row: fuzz.WRatio(
             row.concated_name_1,
             row.concated_name_2
-        ) / 100, 
-        axis = 1
+        ) / 100,
+        axis=1
     )
 
     pbar.update(2)
@@ -104,16 +107,16 @@ def main() -> None:
         lambda row: fuzz.partial_ratio(
             row.transliterated_name_1,
             row.transliterated_name_2
-        ) / 100, 
-        axis = 1
+        ) / 100,
+        axis=1
     )
 
     data['conc_partial_ratio'] = data.apply(
         lambda row: fuzz.partial_ratio(
-            row.concated_name_1, 
+            row.concated_name_1,
             row.concated_name_2
         ) / 100,
-        axis = 1
+        axis=1
     )
 
     pbar.update(2)
@@ -124,15 +127,15 @@ def main() -> None:
             row.transliterated_name_1,
             row.transliterated_name_2
         ) / 100,
-        axis = 1
+        axis=1
     )
 
     data['conc_token_sort_ratio'] = data.apply(
         lambda row: fuzz.token_sort_ratio(
-            row.concated_name_1, 
+            row.concated_name_1,
             row.concated_name_2
         ) / 100,
-        axis = 1
+        axis=1
     )
 
     pbar.update(2)
@@ -143,15 +146,15 @@ def main() -> None:
             row.transliterated_name_1,
             row.transliterated_name_2
         ),
-        axis = 1
+        axis=1
     )
 
     data['conc_levenshtein'] = data.apply(
         lambda row: Levenshtein.distance(
-            row.concated_name_1, 
+            row.concated_name_1,
             row.concated_name_2
-        ), 
-        axis = 1
+        ),
+        axis=1
     )
 
     pbar.update(2)
@@ -164,19 +167,19 @@ def main() -> None:
         ) / max(
             len(row.transliterated_name_1),
             len(row.transliterated_name_2)
-        ), 
-        axis = 1
+        ),
+        axis=1
     )
 
     data['conc_levenshtein_ratio'] = data.apply(
         lambda row: Levenshtein.distance(
-            row.concated_name_1, 
+            row.concated_name_1,
             row.concated_name_2
         ) / max(
             len(row.concated_name_1),
             len(row.concated_name_2)
-        ), 
-        axis = 1
+        ),
+        axis=1
     )
 
     pbar.update(2)
@@ -187,15 +190,15 @@ def main() -> None:
             row.transliterated_name_1,
             row.transliterated_name_2
         ),
-        axis = 1
+        axis=1
     )
 
     data['conc_jaro'] = data.apply(
         lambda row: Levenshtein.jaro(
-            row.transliterated_name_1, 
+            row.transliterated_name_1,
             row.concated_name_2
-        ), 
-        axis = 1
+        ),
+        axis=1
     )
 
     pbar.update(2)
@@ -203,10 +206,10 @@ def main() -> None:
     # Cosine distance between strings
     data['trans_cosine'] = data.apply(
         lambda row: cos_distance(
-            row.transliterated_name_1, 
+            row.transliterated_name_1,
             row.transliterated_name_2
-        ), 
-        axis = 1
+        ),
+        axis=1
     )
 
     pbar.update(1)
@@ -214,10 +217,10 @@ def main() -> None:
     # Jaccard similarity of strings
     data['trans_jaccard'] = data.apply(
         lambda row: jaccard_similarity(
-            row.transliterated_name_1, 
+            row.transliterated_name_1,
             row.transliterated_name_2
-        ), 
-        axis = 1
+        ),
+        axis=1
     )
 
     pbar.update(1)
@@ -225,12 +228,12 @@ def main() -> None:
     # Dropping all non-numerical columns
     data = data.drop(
         ['name_1',
-        'name_2',
-        'concated_name_1',
-        'concated_name_2',
-        'transliterated_name_1',
-        'transliterated_name_2'
-        ],
+         'name_2',
+         'concated_name_1',
+         'concated_name_2',
+         'transliterated_name_1',
+         'transliterated_name_2'
+         ],
         axis=1
     )
 
@@ -241,7 +244,6 @@ def main() -> None:
     data.to_csv(f'../../data/processed/{output_path}')
 
     print('Dataset has been prepared')
-
 
 
 if __name__ == '__main__':

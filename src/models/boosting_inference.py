@@ -19,7 +19,7 @@ def make_parser() -> argparse.ArgumentParser:
                         help='json file with company names')
 
     parser.add_argument('-model', type=str,
-                        default='uni_catboost_v0.joblib',
+                        default='uni_lgbm_v0.joblib',
                         help='model filename')
 
     return parser

@@ -7,7 +7,7 @@ sys.path.append('../')
 # ...but sometimes we have to
 
 from fuzzywuzzy import fuzz
-from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
 import Levenshtein
 import pandas as pd
 
@@ -56,8 +56,8 @@ class BasicModel(ABC):
         pass
 
 
-class CatboostModel(BasicModel):
-    def __init__(self, model: CatBoostClassifier) -> None:
+class LGBMModel(BasicModel):
+    def __init__(self, model: LGBMClassifier) -> None:
         self.model = model
 
     def preprocess_input(self, company_name_1: str,

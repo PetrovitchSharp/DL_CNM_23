@@ -1,12 +1,12 @@
 import argparse
 
-from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import sklearn.metrics as metrics
 from joblib import dump
 
-from model_classes import CatboostModel
+from model_classes import LGBMModel
 
 
 def make_parser() -> argparse.ArgumentParser:
@@ -29,11 +29,11 @@ def make_parser() -> argparse.ArgumentParser:
                         help='model version')
 
     parser.add_argument('-lr', type=float,
-                        default=0.2,
+                        default=0.1,
                         help='learning rate')
 
     parser.add_argument('-iters', type=int,
-                        default=2000,
+                        default=500,
                         help='number of iterations')
 
     parser.add_argument('-test_size', type=float,
@@ -98,11 +98,11 @@ def main() -> None:
     )
 
     # Model training on train dataset
-    model = CatBoostClassifier(
-        thread_count=-1,
-        eta=learning_rate,
-        iterations=iterations,
-        silent=True
+    model = LGBMClassifier(
+        num_threads=-1,
+        boosting='gbdt',
+        eta=0.05,
+        n_iter=900,
     )
 
     print('Fitting model on train dataset...')
@@ -129,11 +129,11 @@ def main() -> None:
 
     # If refit is True we train model on full dataset and evaluate it
     if refit:
-        model = CatBoostClassifier(
-            thread_count=-1,
-            eta=learning_rate,
-            iterations=iterations,
-            silent=True
+        model = LGBMClassifier(
+            num_threads=-1,
+            boosting='gbdt',
+            eta=0.05,
+            n_iter=900,
         )
 
         print('Refitting model on full dataset...')
@@ -155,8 +155,8 @@ def main() -> None:
     unificated_model = CatboostModel(model)
 
     # Save models
-    dump(unificated_model, f'../../models/uni_catboost_v{version}.joblib')
-    dump(model, f'../../models/raw_catboost_v{version}.joblib')
+    dump(unificated_model, f'../../models/uni_lgbm_v{version}.joblib')
+    dump(model, f'../../models/raw_lgbm_v{version}.joblib')
 
 
 if __name__ == '__main__':

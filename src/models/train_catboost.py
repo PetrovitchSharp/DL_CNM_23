@@ -82,8 +82,12 @@ def main() -> None:
         index_col='pair_id'
     )
 
-    X = data.drop(['is_duplicate'], axis=1)
-    y = data.is_duplicate
+    # Undersampling
+    matched_count = data.is_duplicate.value_counts()[1]
+    equal_df = pd.concat([data[data.is_duplicate == 1],data[data.is_duplicate == 0].sample(matched_count)])
+
+    X = equal_df.drop(['is_duplicate'], axis=1)
+    y = equal_df.is_duplicate
 
     # Split data into train and test
     X_train, X_test, y_train, y_test = train_test_split(

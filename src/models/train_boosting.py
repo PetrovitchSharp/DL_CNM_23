@@ -101,8 +101,8 @@ def main() -> None:
     model = LGBMClassifier(
         num_threads=-1,
         boosting='gbdt',
-        eta=0.05,
-        n_iter=900,
+        eta=learning_rate,
+        n_iter=iterations
     )
 
     print('Fitting model on train dataset...')
@@ -132,8 +132,8 @@ def main() -> None:
         model = LGBMClassifier(
             num_threads=-1,
             boosting='gbdt',
-            eta=0.05,
-            n_iter=900,
+            eta=learning_rate,
+            n_iter=iterations
         )
 
         print('Refitting model on full dataset...')
@@ -152,7 +152,7 @@ def main() -> None:
 
     print_metrics(metrics_dict)
 
-    unificated_model = CatboostModel(model)
+    unificated_model = LGBMModel(model)
 
     # Save models
     dump(unificated_model, f'../../models/uni_lgbm_v{version}.joblib')

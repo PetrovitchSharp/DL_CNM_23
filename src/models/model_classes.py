@@ -78,8 +78,8 @@ class CatboostModel(BasicModel):
 
         # Concat and clear company names from characters
         # that are not numbers or letters
-        concated_name_1 = clean_and_concat(company_name_1.lower())
-        concated_name_2 = clean_and_concat(company_name_2.lower())
+        concated_name_1 = clean_and_concat(transliterated_name_1)
+        concated_name_2 = clean_and_concat(transliterated_name_2)
 
         # Numerical features based on transliterated names
         trans_wratio = fuzz.WRatio(
@@ -154,14 +154,14 @@ class CatboostModel(BasicModel):
             'trans_levenshtein': trans_levenshtein,
             'trans_levenshtein_ratio': trans_levenshtein_ratio,
             'trans_jaro': trans_jaro,
-            'trans_cosine': trans_cosine,
-            'trans_jaccard': trans_jaccard,
             'conc_wratio': conc_wratio,
             'conc_partial_ratio': conc_partial_ratio,
             'conc_token_sort_ratio': conc_token_sort_ratio,
             'conc_levenshtein': conc_levenshtein,
             'conc_levenshtein_ratio': conc_levenshtein_ratio,
-            'conc_jaro': conc_jaro
+            'conc_jaro': conc_jaro,
+            'trans_cosine': trans_cosine,
+            'trans_jaccard': trans_jaccard
         })
 
     def predict(self, company_name_1: str, company_name_2: str) -> bool:

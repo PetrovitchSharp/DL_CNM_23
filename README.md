@@ -3,7 +3,7 @@ DL_CNM_23
 
 Сопоставление названий компаний
 
-Project Organization
+Структура проекта
 ------------
 
     ├── LICENSE
@@ -55,3 +55,145 @@ Project Organization
 --------
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+
+---
+
+## Метрики
+
+В качестве основных метрик качества классификации были выбраны [recision и recall](https://en.wikipedia.org/wiki/Precision_and_recall), а также [F1-score](https://en.wikipedia.org/wiki/F-score) в macro интерпретации (т.е. как среднее арифметическое по данным метрикам для каждого из классов). 
+
+Precision можно интерпретировать как долю объектов, названных классификатором положительными и при этом действительно являющимися положительными, а recall показывает, какую долю объектов положительного класса из всех объектов положительного класса нашел алгоритм. Recall демонстрирует способность алгоритма обнаруживать данный класс вообще, а precision — способность отличать этот класс от других классов. 
+
+![Precision](https://habrastorage.org/getpro/habr/post_images/164/93b/c89/16493bc899f7275f3b5ff8d45a3ed2e2.svg)
+
+![Recall](https://habrastorage.org/getpro/habr/post_images/258/4e7/8f3/2584e78f32225eade5cb8b1b4a665193.svg)
+
+
+F1-score - это метрика, объединяющая в себе информацию о точности (precision) и полноте (recall) модели.
+
+![F1](https://miro.medium.com/max/1400/1*9uo7HN1pdMlMwTbNSdyO3A.png)
+
+
+
+## Использование классического ML
+
+Нами было решено опробовать для решения задачи классификации названий компаний такие модели, как [random forest](https://github.com/PetrovitchSharp/DL_CNM_23/blob/develop/notebooks/random_forest.ipynb), [CatBoost, LightGBM](https://github.com/PetrovitchSharp/DL_CNM_23/blob/develop/notebooks/boosting_models.ipynb), а также сравнить их с простейшим [многослойным персептроном](https://github.com/PetrovitchSharp/DL_CNM_23/blob/develop/notebooks/neural_network.ipynb).
+
+Для обучения моделей был произведен препроцессинг ([ноутбук раз](https://github.com/PetrovitchSharp/DL_CNM_23/blob/develop/notebooks/text_unification.ipynb) и [ноутбук два](https://github.com/PetrovitchSharp/DL_CNM_23/blob/develop/notebooks/feature_extraction.ipynb)) с целью вычленить числовые фичи из названий. Также было решено произвести андерсемплинг, т.к. данные оказались сильно несбалансированными.
+
+В результате удалось метрик, представленных в таблице ниже.
+
+| Model | Recall (macro) | Precision (macro) | F1 (macro) |
+| --- | --- | --- | --- |
+| Random Forest | 0.93 | 0.93 | 0.93 |
+| CatBoost | 0.93 | 0.93 | 0.93 |
+| LightGBM | 0.94 | 0.94 | 0.94 |
+| MLP | 0.88 | 0.88 | 0.88 |
+
+В результате в качестве опорной модели из класса "классических" был выбран LightGBM.
+
+Подбор гиперпараметров для LightGBM вы можете найти в [ноутбуке](https://github.com/PetrovitchSharp/DL_CNM_23/blob/develop/notebooks/boosting_models.ipynb)
+
+## Использование нейронных сетей (LSTM)
+
+<p>При использовании нейронных сетей мы переформулировали задачу из задачи классификации пар названий компаний (как в датасете) в задачу поиска похожих компаний по базе. То есть пользователь вводит название компании и ожидает, что система выдаст ему список из нескольких похожих компаний, чтобы пользователь мог понять "есть ли уже данная компания в базе данных и выбрать ее.</p><br>
+
+<p> Для этого нам пришлось выполнить следующие шаги:</p>
+
+1. Кластеризация данных (там где это возможно) -нужно запустить ноутбук notebooks/2.0-Data-clusterization.ipynb
+1. Подготовка датасета для обучения нейронных сетей - для этого нужно выполнить команду:
+
+    poetry run python data/split_dataset.py
+
+3. Обучение модели - ноутбук notebooks/3.0-LSTM-train.ipynb
+4. Оценка качества модели - ноутбук notebooks/3.1-validation.ipynb
+
+### Результат
+
+<p>На данный момент мы попробовали обучать сеть на основе LSTM (данные подаются посимвольно), было проведено достаточно много экспериментов с различными гиперпараметрами (embedding_size, hidden_size, количество слоев LSTM, различные значения dropout.</p><br>
+
+![Wandb](https://raw.githubusercontent.com/PetrovitchSharp/DL_CNM_23/feature/lstm_model/img/wandb_lstm.png)
+
+### Метрика
+
+<p>В этой задаче для пользователя важно, чтобы среди предложенных моделью TOP K результатов был нужный. Мы взяли в качестве K - 5. Для каждого кластера из валидационного датасета был рассчитан precision (доля элементов этого кластера, при поиске по которым среди TOP 5 ответов есть элементы этого кластера).</p>
+
+| Model | Precision (clusters) |
+| --- | --- |
+| LSTM (emb_size 80, hidden_size 80, layers 3) character level | 0.60 |
+
+## Запуск пайплайна
+
+### Установка зависимостей
+
+Наш проект используею python 3.10
+
+Зависимости для нашего проекта можно установить 2-мя способами:
+
+    Используя файл requirements.txt:
+
+    python -m pip install -r requirements.txt
+
+    Используя poetry
+
+    poetry install
+
+    Важно: сейчас в зависимостях указаны версии torch и torchvision для gpu и cuda version 11.6, если у вас нет gpu, или установлена другая cuda - то нужно использовать другую версию библиотек.
+
+
+### Boosting
+
+1. Скачайте [исходный датасет](https://drive.google.com/file/d/1e9bdr7wcQX_YBudQcsKj-sMoIGxQOlK4/view?usp=sharing) и распакуйте его в папку data/raw
+
+2. Выполните предобработку данных - src/features/build_boosting_features.py
+
+    Параметры для использования скрипта:
+
+        -h, --help            show this help message and exit
+        -data DATA            raw dataset filename
+        -output OUTPUT        prepared dataset filename
+
+3. Обучите модель LightGBM - scr/models/train_boosting.py 
+
+    Параметры для использования скрипта:
+
+        -h, --help            show this help message and exit
+        -data DATA            preprocessed dataset filename
+        -version VERSION      model version
+        -lr LR                learning rate
+        -iters ITERS          number of iterations
+        -test_size TEST_SIZE  ratio of test part
+        -refit REFIT          refit model on full dataset
+
+4. Запустите инференс модели - scr/models/boosting_inference.py 
+
+    Параметры для использования скрипта:
+
+        -h, --help    show this help message and exit
+        -input INPUT  json file with company names
+        -model MODEL  model filename
+
+### LSTM
+
+1. Скачайте [исходный датасет](https://drive.google.com/file/d/1e9bdr7wcQX_YBudQcsKj-sMoIGxQOlK4/view?usp=sharing) и распакуйте его в папку data/raw
+
+1. Кластеризация данных (там где это возможно) -нужно запустить ноутбук notebooks/2.0-mg-data-clusterization.ipynb
+1. Подготовка датасета для обучения нейронных сетей - для этого нужно выполнить скрипт: data/split_dataset.py
+1. Обучение модели - ноутбук notebooks/3.0-mg-LSTM-train.ipynb
+1. Оценка качества модели - ноутбук notebooks/3.1-mg-LSTM-validation.ipynb
+
+## Производительность
+
+### Boosting
+
+Оценка производительности LightGBM пайплайна производилась на следующей конфигурации:
+
+CPU: Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz   1.80 GHz
+
+RAM: 8Gb
+
+| Этап | Время работы (c) |
+| --- | --- |
+| Подготовка данных (полный датасет) | 297 |
+| Обучение модели | 2.36 |
+| Инференс | 0.03 |

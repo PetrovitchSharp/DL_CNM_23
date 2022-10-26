@@ -76,7 +76,10 @@ target/
 .ipynb_checkpoints/
 
 # exclude data from source control by default
-/data/
+data/raw/*.csv
+data/processed/*.csv
+data/interim/*.csv
+data/external/*.csv
 
 # Mac OS-specific storage files
 .DS_Store
@@ -87,3 +90,11 @@ target/
 
 # Mypy cache
 .mypy_cache/
+.python-version
+
+src/data/rnn_preprocessing.py
+notebooks/wandb
+models/*.pth
+models/*.joblib
+
+

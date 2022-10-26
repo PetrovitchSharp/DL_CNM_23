@@ -167,9 +167,17 @@ class LGBMModel(BasicModel):
     def predict(self, company_name_1: str, company_name_2: str) -> bool:
         input_data = self.preprocess_input(company_name_1, company_name_2)
 
-        return self.model.predict(input_data) == 1
+        return self.model.predict(
+            input_data
+            .to_numpy()
+            .reshape(1, -1)
+        ) == 1
 
     def predict_proba(self, company_name_1: str, company_name_2: str) -> bool:
         input_data = self.preprocess_input(company_name_1, company_name_2)
 
-        return self.model.predict_proba(input_data)
+        return self.model.predict_proba(
+            input_data
+            .to_numpy()
+            .reshape(1, -1)
+        )
